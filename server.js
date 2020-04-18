@@ -1,13 +1,32 @@
 const express = require('express');
+const morgan = require("morgan"); // remember to require the module after installing it
+const helmet = require("helmet");
+
+const postsRouter = require("./posts/postRouter");
+const usersRouter = require("./users/userRouter");
+
+const userDb = require("./users/userDb")
 
 const server = express();
 
-server.get('/', (req, res) => {
-  res.send(`<h2>Let's write some middleware!</h2>`);
+//custom middleware
+server.use(logger);
+server.use(helmet());
+
+server.use(morgan("short"));
+server.use(express.json());
+
+server.use("/api/posts", postsRouter);
+server.use("/api/users", usersRouter);
+
+server.use((error, req, res, next) => {
+  res.status(400).json({ error: "something broke!" });
 });
 
-//custom middleware
-
-function logger(req, res, next) {}
-
 module.exports = server;
+
+function logger(req, res, next) {
+  console.log(`${req.method} Request to ${req.originalUrl}`);
+
+  next();
+}

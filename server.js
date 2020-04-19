@@ -5,8 +5,6 @@ const helmet = require("helmet");
 const postsRouter = require("./posts/postRouter");
 const usersRouter = require("./users/userRouter");
 
-const userDb = require("./users/userDb")
-
 const server = express();
 
 //custom middleware
@@ -18,10 +16,6 @@ server.use(express.json());
 
 server.use("/api/posts", postsRouter);
 server.use("/api/users", usersRouter);
-
-server.use((error, req, res, next) => {
-  res.status(400).json({ error: "something broke!" });
-});
 
 module.exports = server;
 

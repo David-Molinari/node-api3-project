@@ -17,18 +17,6 @@ router.post('/', validateUser, (req, res) => {
     });
 });
 
-router.post('/:id/posts', validatePost, (req, res) => {
-  Posts.insert(req.body)
-    .then((user) => {
-      res.status(201).json(user);
-    })
-    .catch((err) => {
-      res.status(500).json({
-        message: 'there was an error adding user'
-      });
-    });
-});
-
 router.get('/', (req, res) => {
   Users.get()
     .then((users) => {
@@ -87,7 +75,7 @@ router.put('/:id', validateUserId, (req, res) => {
 //custom middleware
 
 function validateUserId(req, res, next) {
-  let { user } = userDb.getById(req.params.id);
+  let user = Users.getById(req.params.id);
   if (user) {
     console.log(user);
     next(); // calls the next normal mw in the stack
@@ -97,7 +85,7 @@ function validateUserId(req, res, next) {
 }
 
 function validateUser(req, res, next) {
-  if(req.body.name == String) {
+  if(req.body.name) {
     console.log(req.body.name);
     next();
   } else {
@@ -105,13 +93,6 @@ function validateUser(req, res, next) {
   }
 }
 
-function validatePost(req, res, next) {
-  if(req.body.text == String && req.body.user_id != null) {
-    console.log(req.body.text, req.body.user_id);
-    next();
-  } else {
-    res.status(400).json({ error: "something broke!" });
-  }
-}
-
 module.exports = router;
+
+// I know - need to test the routers

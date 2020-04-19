@@ -1,27 +1,74 @@
 const express = require('express');
 
+const Posts = require('./postDb');
+
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  // do your magic!
+  Posts.get()
+    .then((posts) => {
+      res.status(200).json(posts);
+    })
+    .catch((err) => {
+      res.status(500).json({message: 'Error retrieving the posts'});
+    });
 });
 
 router.get('/:id', (req, res) => {
-  // do your magic!
+  Posts.getById(req.params.id)
+    .then((post) => {
+      res.status(200).json(post);
+    })
+    .catch((err) => {
+      res.status(500).json({message: 'Error retrieving the posts'});
+    });
+});
+
+router.post('/', validatePost, (req, res) => {
+  Posts.insert(req.body)
+    .then((post) => {
+      res.status(201).json(post);
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: 'there was an error adding post'
+      });
+    });
 });
 
 router.delete('/:id', (req, res) => {
-  // do your magic!
+  Posts.remove(req.params.id)
+    .then(deleted => {
+      if (deleted) {
+        res.json({removed: deleted });
+      } else {
+        res.status(404).json({ message: 'Could not find post with given id' });
+      }
+    })
+    .catch(err => {
+      res.status(500).json({ message: 'Failed to delete post'})
+    })
 });
 
 router.put('/:id', (req, res) => {
-  // do your magic!
+  Posts.update(req.params.id, req.body)
+  .then((post) => {
+    res.status(200).json(post);
+  })
+  .catch((err) => {
+    res.status(500).json({message: 'Error updating the post'});
+  });
 });
 
 // custom middleware
 
-function validatePostId(req, res, next) {
-  // do your magic!
+function validatePost(req, res, next) {
+  if(req.body.text != null && req.body.user_id != null) {
+    console.log(req.body.text, req.body.user_id);
+    next();
+  } else {
+    res.status(400).json({ error: "something broke!" });
+  }
 }
 
 module.exports = router;

@@ -20,7 +20,7 @@ server.use("/api/users", usersRouter);
 module.exports = server;
 
 function logger(req, res, next) {
-  console.log(`${req.method} Request to ${req.originalUrl}`);
+  console.log(new Date(),`${req.method} Request to ${req.originalUrl}`);
 
   next();
 }

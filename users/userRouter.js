@@ -37,13 +37,17 @@ router.get('/:id', validateUserId, (req, res) => {
     });
 });
 
-router.get('/:id/posts', (req, res) => {
+router.get('/:id/posts', validateUserId, (req, res) => {
   Users.getUserPosts(req.params.id)
     .then((posts) => {
-      res.status(200).json(posts);
+      if(!posts) {
+        res.status(400).json({ message: "invalid user id"  });
+      } else {
+        res.status(200).json(posts);
+      }
     })
     .catch((err) => {
-      res.status(500).json({message: 'Error retrieving the users'});
+      res.status(500).json({message: 'Error retrieving the posts'});
     });
 });
 
@@ -75,21 +79,28 @@ router.put('/:id', validateUserId, (req, res) => {
 //custom middleware
 
 function validateUserId(req, res, next) {
-  let user = Users.getById(req.params.id);
-  if (user) {
-    console.log(user);
-    next(); // calls the next normal mw in the stack
-  } else {
-    res.status(400).json({ error: "something broke!" });
-  }
+  Users.getById(req.params.id)
+    .then((user) => {
+      if (!user) {
+        res.status(400).json({ message: "invalid user id"  });
+      } else {
+        console.log(user);
+        next(); // calls the next normal mw in the stack
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({message: 'error validating the user'});
+    });
 }
 
 function validateUser(req, res, next) {
-  if(req.body.name) {
-    console.log(req.body.name);
-    next();
+  if(!req.body) {
+    res.status(400).json({ error: "missing user data" });
+  } else if (!req.body.name) {
+    res.status(400).json({ message: "missing required name field"});
   } else {
-    res.status(400).json({ error: "something broke!" });
+    console.log(req.body);
+    next();
   }
 }
 
